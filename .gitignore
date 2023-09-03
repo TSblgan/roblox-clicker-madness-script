@@ -1,41 +1,107 @@
-# Compiled Lua sources
-luac.out
+-- clicker madness
+getgenv().autoTap = false;
+getgenv().autoEgg = false;
+getgenv().autoRebirth = false;
+getgenv().speedHack = false;
+local clickMod = require(game:GetService("Players").zenn9x.PlayerScripts.Aero.Controllers.UI.Click)
 
-# luarocks build files
-*.src.rock
-*.zip
-*.tar.gz
+function teleportTO(placeCFrame)
+    local plyr = game.Players.LocalPlayer;
+    if plyr.Character then
+        plyr.Character.HumanoidRootPart.CFrame = placeCFrame;
+    end
+end
+function teleportWorld(world)
+    if game:GetService("Workspace").Worlds:FindFirstChild(world) then
+        teleportTO(game:GetService("Workspace").Worlds[world].Teleport.CFrame)
+    end
+end
 
-# Object files
-*.o
-*.os
-*.ko
-*.obj
-*.elf
+function doTap()
+    while getgenv().autoTap == true do
+        clickMod:Click()
+        wait()
+    end
+end
 
-# Precompiled Headers
-*.gch
-*.pch
+function doEgg(EggName)
+    while getgenv().autoEgg == true do
+        local args = {[1] = EggName}
+        game:GetService("ReplicatedStorage").Aero.AeroRemoteServices.EggService.Purchase:FireServer(unpack(args))
+        wait()
+    end
+end
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-*.def
-*.exp
+function doRebirth(RebirthAmount)
+    spawn(function()
+        while getgenv().autoRebirth == true do
+            local args = {[1] = RebirthAmount}
+            game:GetService("ReplicatedStorage").Aero.AeroRemoteServices.RebirthService.BuyRebirths:FireServer(unpack(args))
+            wait()
+        end
+    end)
+end
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+function doSpeed(speednumber)
+    if game.Players.LocalPlayer.Character then
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speednumber
+    end
+end
+ 
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+
+local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3')))()
+local w = library:CreateWindow("Simulator") 
+local b = w:CreateFolder("Clicks") 
+local c = w:CreateFolder("Eggs") 
+local d = w:CreateFolder("Rebirths") 
+local e = w:CreateFolder("Worlds") 
+local s = w:CreateFolder("Speed Hack") 
+
+b:Toggle("Autoclicker",function(bool)
+    getgenv().autoTap = bool
+    if bool then
+        doTap()
+    end
+end)
+
+local selectedEgg;
+c:Dropdown("Egg Type",{"classic","lava","desert","ocean","winter","toxic","candy","forest","storm","blocky","space","dominus","infinity","future","city","moon","fire"},true,function(value) 
+    selectedEgg = value;
+end)
+c:Toggle("AutoOpen Selected Egg",function(bool)
+    getgenv().autoEgg = bool
+    if bool and selectedEgg then
+        doEgg(selectedEgg)
+    end
+end)
+
+local selectedRebirth;
+d:Dropdown("Rebirth Amount",{"1","10","100","1000","10000","100000","1000000","10000000",},true,function(value) 
+    selectedRebirth = value;
+end)
+d:Toggle("Auto Rebirth",function(bool)
+    getgenv().autoRebirth = bool
+    if bool and selectedRebirth then
+        doRebirth(selectedRebirth)
+    end
+end)
+
+local selectedWorld;
+e:Dropdown("World",{"Lava","Desert","Ocean","Winter","Toxic","Candy","Forest","Strom","Blocks","Space","Dominus","Infinity","Future","City","Moon","Fire"},true,function(value) 
+    selectedWorld = value; 
+end)
+e:Button("Teleport Selected",function()
+    if selectedWorld then
+        teleportWorld(selectedWorld)
+    end
+end)
+
+s:Slider("Slider",{
+    min = 16; 
+    max = 175; 
+},function(value)
+        doSpeed(value)
+end)
+
 
